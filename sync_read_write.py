@@ -63,7 +63,7 @@ LEN_PRO_PRESENT_POSITION    = 4
 PROTOCOL_VERSION            = 2.0               # See which protocol version is used in the Dynamixel
 
 # Default setting
-DXL_ID                      = [1, 2, 3, 4]
+DXL_ID                      = [id for id in range(4)]
 BAUDRATE                    = 1000000             # Dynamixel default baudrate : 57600
 DEVICENAME                  = '/dev/ttyUSB0'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
@@ -72,12 +72,10 @@ PROFILE_VELOCITY            = 500
 
 TORQUE_ENABLE               = 1                 # Value for enabling the torque
 TORQUE_DISABLE              = 0                 # Value for disabling the torque
-DXL_MINIMUM_POSITION_VALUE  = 2000           # Dynamixel will rotate between this value
-DXL_MAXIMUM_POSITION_VALUE  = 2200            # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
 DXL_MOVING_STATUS_THRESHOLD = 15                # Dynamixel moving status threshold
 
 index = 0
-dxl_goal_position = [DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE]         # Goal position
+dxl_goal_position = [2000, 2200]         # Goal position
 dxl_present_position = [0]*4
 
 
@@ -191,14 +189,14 @@ while 1:
                 quit()
 
         arrived = True
-        for c, id in enumerate(DXL_ID):
+        for id in DXL_ID:
             # Get Dynamixel present position value
-            dxl_present_position[c] = groupSyncRead.getData(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
+            dxl_present_position[id] = groupSyncRead.getData(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
 
-        for c, id in enumerate(DXL_ID):
-            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index], dxl_present_position[c]))
+        for id in DXL_ID:
+            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index], dxl_present_position[id]))
 
-            arrived = arrived and (abs(dxl_goal_position[index] - dxl_present_position[c]) < DXL_MOVING_STATUS_THRESHOLD)
+            arrived = arrived and (abs(dxl_goal_position[index] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
         print()
 
         if arrived:
