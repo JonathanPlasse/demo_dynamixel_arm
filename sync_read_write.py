@@ -52,6 +52,8 @@ from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 ADDR_PRO_TORQUE_ENABLE      = 64               # Control table address is different in Dynamixel model
 ADDR_PRO_GOAL_POSITION      = 116
 ADDR_PRO_PRESENT_POSITION   = 132
+ADDR_PRO_PROFILE_ACCELERATION = 108
+ADDR_PRO_PROFILE_VELOCITY     = 112
 
 # Data Byte Length
 LEN_PRO_GOAL_POSITION       = 4
@@ -68,6 +70,8 @@ DXL4_ID                     = 4                 # Dynamixel#1 ID : 2
 BAUDRATE                    = 1000000             # Dynamixel default baudrate : 57600
 DEVICENAME                  = '/dev/ttyUSB0'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
+PROFILE_ACCELERATION        = 300
+PROFILE_VELOCITY            = 1000
 
 TORQUE_ENABLE               = 1                 # Value for enabling the torque
 TORQUE_DISABLE              = 0                 # Value for disabling the torque
