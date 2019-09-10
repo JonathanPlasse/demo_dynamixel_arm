@@ -71,8 +71,8 @@ DXL4_ID                     = 4                 # Dynamixel#1 ID : 2
 BAUDRATE                    = 1000000             # Dynamixel default baudrate : 57600
 DEVICENAME                  = '/dev/ttyUSB0'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
-PROFILE_ACCELERATION        = 300
-PROFILE_VELOCITY            = 1000
+PROFILE_ACCELERATION        = 200
+PROFILE_VELOCITY            = 500
 
 TORQUE_ENABLE               = 1                 # Value for enabling the torque
 TORQUE_DISABLE              = 0                 # Value for disabling the torque
@@ -132,11 +132,31 @@ for id in DXL_ID:
     else:
         print("Dynamixel#%d has been successfully connected" % id)
 
+    # Set Dynamixel acceleration profile
+    dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, id, ADDR_PRO_PROFILE_ACCELERATION, PROFILE_ACCELERATION)
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print("%s" % packetHandler.getRxPacketError(dxl_error))
+    else:
+        print("Dynamixel#%d profile acceleration has been successfully updated" % id)
+
+    # Set Dynamixel velocity profile
+    dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, id, ADDR_PRO_PROFILE_VELOCITY, PROFILE_VELOCITY)
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+    elif dxl_error != 0:
+        print("%s" % packetHandler.getRxPacketError(dxl_error))
+    else:
+        print("Dynamixel#%d profile velocity has been successfully updated" % id)
+
     # Add parameter storage for Dynamixel#1 present position value
     dxl_addparam_result = groupSyncRead.addParam(id)
     if dxl_addparam_result != True:
         print("[ID:%03d] groupSyncRead addparam failed" % id)
         quit()
+
+    print()
 
 while 1:
     print("Press any key to continue! (or press ESC to quit!)")
