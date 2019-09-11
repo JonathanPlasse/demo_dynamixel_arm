@@ -54,6 +54,7 @@ ADDR_PRO_GOAL_POSITION      = 116
 ADDR_PRO_PRESENT_POSITION   = 132
 ADDR_PRO_PROFILE_ACCELERATION = 108
 ADDR_PRO_PROFILE_VELOCITY     = 112
+ADDR_PRO_POSITION_P_GAIN     = 84
 
 # Data Byte Length
 LEN_PRO_GOAL_POSITION       = 4
@@ -158,6 +159,18 @@ def setProfile():
             print("Dynamixel#%d profile velocity has been successfully updated" % id)
         print()
 
+def setPositionPGain():
+    for id in DXL_ID:
+        # Set Dynamixel position p gain
+        dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, id, ADDR_PRO_POSITION_P_GAIN, POSITION_P_GAIN[id])
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % packetHandler.getRxPacketError(dxl_error))
+        else:
+            print("Dynamixel#%d position p gain has been successfully updated" % id)
+        print()
+
 def initReadPosition():
     for id in DXL_ID:
         # Add parameter storage for Dynamixel#1 present position value
@@ -213,6 +226,8 @@ def trackPosition(dxl_goal_position):
 
     setProfile()
 
+    setPositionPGain()
+
     initReadPosition()
 
     index = 0
@@ -251,8 +266,6 @@ def trackPosition(dxl_goal_position):
 dxl_goal_position = [[1700, 2000, 2000, 2000], [2300, 2500, 2200, 2200], [2000, 1400, 2700, 2400]]         # Goal position
 
 trackPosition(dxl_goal_position)
-
-
 
 
 # Close port
