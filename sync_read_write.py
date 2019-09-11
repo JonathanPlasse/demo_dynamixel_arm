@@ -75,7 +75,7 @@ TORQUE_DISABLE              = 0                 # Value for disabling the torque
 DXL_MOVING_STATUS_THRESHOLD = 15                # Dynamixel moving status threshold
 
 index = 0
-dxl_goal_position = [2000, 2200]         # Goal position
+dxl_goal_position = [[1800, 2200], [2000, 2200], [2000, 2200], [2000, 2200]]         # Goal position
 dxl_present_position = [0]*4
 
 
@@ -157,10 +157,10 @@ while 1:
     if getch() == chr(0x1b):
         break
 
-    # Allocate goal position value into byte array
-    param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[index])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[index])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index]))]
-
     for id in DXL_ID:
+        # Allocate goal position value into byte array
+        param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[id][index])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[id][index])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[id][index])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[id][index]))]
+
         # Add Dynamixel goal position value to the Syncwrite parameter storage
         dxl_addparam_result = groupSyncWrite.addParam(id, param_goal_position)
         if dxl_addparam_result != True:
@@ -194,9 +194,9 @@ while 1:
             dxl_present_position[id] = groupSyncRead.getData(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
 
         for id in DXL_ID:
-            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index], dxl_present_position[id]))
+            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[id][index], dxl_present_position[id]))
 
-            arrived = arrived and (abs(dxl_goal_position[index] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
+            arrived = arrived and (abs(dxl_goal_position[id][index] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
         print()
 
         if arrived:
