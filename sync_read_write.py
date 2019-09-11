@@ -168,10 +168,10 @@ def initReadPosition():
             print("[ID:%03d] groupSyncRead addparam failed" % id)
             quit()
 
-def writePosition():
+def writePosition(dxl_goal_position):
     for id in DXL_ID:
         # Allocate goal position value into byte array
-        param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[index][id])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[index][id])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index][id])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index][id]))]
+        param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[id])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[id])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[id])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[id]))]
 
         # Add Dynamixel goal position value to the Syncwrite parameter storage
         dxl_addparam_result = groupSyncWrite.addParam(id, param_goal_position)
@@ -214,7 +214,7 @@ while 1:
     if getch() == chr(0x1b):
         break
 
-    writePosition()
+    writePosition(dxl_goal_position[index])
 
     while 1:
         readPosition()
