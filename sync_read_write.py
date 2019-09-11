@@ -229,6 +229,16 @@ def hasArrived(dxl_goal_position, dxl_present_position):
 
     return status
 
+def go2Position(dxl_goal_position):
+    writePosition(dxl_goal_position)
+
+    dxl_present_position = readPosition()
+    while not hasArrived(dxl_goal_position, dxl_present_position):
+        dxl_present_position = readPosition()
+
+        display(dxl_goal_position, dxl_present_position)
+
+
 def savePosition():
     initReadPosition()
 
@@ -263,14 +273,7 @@ def trackPosition(dxl_goal_position):
         if getch() == chr(0x1b):
             break
 
-        writePosition(dxl_goal_position[index])
-
-
-        dxl_present_position = readPosition()
-        while not hasArrived(dxl_goal_position[index], dxl_present_position):
-            dxl_present_position = readPosition()
-
-            display(dxl_goal_position[index], dxl_present_position)
+        go2Position(dxl_goal_position[index])
 
         # Change goal position
         index += 1
@@ -278,11 +281,7 @@ def trackPosition(dxl_goal_position):
         if index == len(dxl_goal_position):
             index = 0
 
-    writePosition(HOME_POSITION)
-
-    dxl_present_position = readPosition()
-    while not hasArrived(HOME_POSITION, dxl_present_position):
-        dxl_present_position = readPosition()
+    go2Position(HOME_POSITION)
 
     # Clear syncread parameter storage
     groupSyncRead.clearParam()
