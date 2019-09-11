@@ -69,15 +69,15 @@ BAUDRATE                    = 1000000             # Dynamixel default baudrate :
 DEVICENAME                  = '/dev/ttyUSB0'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 PROFILE_ACCELERATION        = 300
-PROFILE_VELOCITY            = 1000
+PROFILE_VELOCITY            = 700
 
-POSITION_P_GAIN             = [1000, 5000, 3000, 1000]
+POSITION_P_GAIN             = [1000, 2000, 2000, 1000]
 
 TORQUE_ENABLE               = 1                 # Value for enabling the torque
 TORQUE_DISABLE              = 0                 # Value for disabling the torque
-DXL_MOVING_STATUS_THRESHOLD = 5                # Dynamixel moving status threshold
+DXL_MOVING_STATUS_THRESHOLD = 15                # Dynamixel moving status threshold
 
-dxl_present_position = [0]*4
+HOME_POSITION               = [2000, 1980, 2000, 1770]
 
 # Initialize PortHandler instance
 # Set the port path
@@ -204,6 +204,7 @@ def readPosition():
     if dxl_comm_result != COMM_SUCCESS:
         print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
 
+    dxl_present_position = [0]*4
     for id in DXL_ID:
         # Check if groupsyncread data of Dynamixel#1 is available
         dxl_getdata_result = groupSyncRead.isAvailable(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
@@ -220,6 +221,32 @@ def display(dxl_goal_position, dxl_present_position):
     for id in DXL_ID:
         print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[id], dxl_present_position[id]))
     print()
+
+def hasArrived(dxl_goal_position, dxl_present_position):
+    status = True
+    for id in DXL_ID:
+        status = status and (abs(dxl_goal_position[id] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
+
+    return status
+
+def savePosition():
+    initReadPosition()
+
+    dxl_goal_position = []
+
+    while 1:
+        print("Press any key to continue! (or press ESC to quit!)")
+        if getch() == chr(0x1b):
+            break
+
+        dxl_goal_position.append(readPosition())
+
+    print(dxl_goal_position)
+
+    # Clear syncread parameter storage
+    groupSyncRead.clearParam()
+
+    return dxl_goal_position
 
 def trackPosition(dxl_goal_position):
     torqueEnable()
@@ -238,23 +265,24 @@ def trackPosition(dxl_goal_position):
 
         writePosition(dxl_goal_position[index])
 
-        while 1:
+
+        dxl_present_position = readPosition()
+        while not hasArrived(dxl_goal_position[index], dxl_present_position):
             dxl_present_position = readPosition()
 
             display(dxl_goal_position[index], dxl_present_position)
-
-            arrived = True
-            for id in DXL_ID:
-                arrived = arrived and (abs(dxl_goal_position[index][id] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
-
-            if arrived:
-                break
 
         # Change goal position
         index += 1
 
         if index == len(dxl_goal_position):
             index = 0
+
+    writePosition(HOME_POSITION)
+
+    dxl_present_position = readPosition()
+    while not hasArrived(HOME_POSITION, dxl_present_position):
+        dxl_present_position = readPosition()
 
     # Clear syncread parameter storage
     groupSyncRead.clearParam()
@@ -263,7 +291,9 @@ def trackPosition(dxl_goal_position):
 
 
 
-dxl_goal_position = [[1700, 2000, 2000, 2000], [2300, 2500, 2200, 2200], [2000, 1400, 2700, 2400]]         # Goal position
+# dxl_goal_position = [[1700, 2000, 2000, 2000], [2300, 2500, 2200, 2200], [2000, 1400, 2700, 2400]]         # Goal position
+torqueDisable()
+dxl_goal_position = savePosition()
 
 trackPosition(dxl_goal_position)
 
