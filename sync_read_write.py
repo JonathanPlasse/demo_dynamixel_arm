@@ -187,6 +187,22 @@ def writePosition():
     # Clear syncwrite parameter storage
     groupSyncWrite.clearParam()
 
+def readPosition():
+    # Syncread present position
+    dxl_comm_result = groupSyncRead.txRxPacket()
+    if dxl_comm_result != COMM_SUCCESS:
+        print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+
+    for id in DXL_ID:
+        # Check if groupsyncread data of Dynamixel#1 is available
+        dxl_getdata_result = groupSyncRead.isAvailable(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
+        if dxl_getdata_result != True:
+            print("[ID:%03d] groupSyncRead getdata failed" % id)
+            quit()
+
+        # Get Dynamixel present position value
+        dxl_present_position[id] = groupSyncRead.getData(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
+
 torqueEnable()
 
 setProfile()
@@ -201,23 +217,9 @@ while 1:
     writePosition()
 
     while 1:
-        # Syncread present position
-        dxl_comm_result = groupSyncRead.txRxPacket()
-        if dxl_comm_result != COMM_SUCCESS:
-            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-
-        for id in DXL_ID:
-            # Check if groupsyncread data of Dynamixel#1 is available
-            dxl_getdata_result = groupSyncRead.isAvailable(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
-            if dxl_getdata_result != True:
-                print("[ID:%03d] groupSyncRead getdata failed" % id)
-                quit()
+        readPosition()
 
         arrived = True
-        for id in DXL_ID:
-            # Get Dynamixel present position value
-            dxl_present_position[id] = groupSyncRead.getData(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
-
         for id in DXL_ID:
             print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index][id], dxl_present_position[id]))
 
