@@ -205,6 +205,11 @@ def readPosition():
 
     return dxl_present_position
 
+def display(dxl_goal_position, dxl_present_position):
+    for id in DXL_ID:
+        print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index][id], dxl_present_position[id]))
+    print()
+
 torqueEnable()
 
 setProfile()
@@ -221,12 +226,11 @@ while 1:
     while 1:
         dxl_present_position = readPosition()
 
+        display(dxl_goal_position, dxl_present_position)
+
         arrived = True
         for id in DXL_ID:
-            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index][id], dxl_present_position[id]))
-
             arrived = arrived and (abs(dxl_goal_position[index][id] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
-        print()
 
         if arrived:
             break
