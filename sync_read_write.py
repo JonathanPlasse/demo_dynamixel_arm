@@ -158,6 +158,15 @@ def setProfile():
             print("%s" % packetHandler.getRxPacketError(dxl_error))
         else:
             print("Dynamixel#%d profile velocity has been successfully updated" % id)
+        print()
+
+def initReadPosition():
+    for id in DXL_ID:
+        # Add parameter storage for Dynamixel#1 present position value
+        dxl_addparam_result = groupSyncRead.addParam(id)
+        if dxl_addparam_result != True:
+            print("[ID:%03d] groupSyncRead addparam failed" % id)
+            quit()
 
 def writePosition():
     for id in DXL_ID:
@@ -182,14 +191,7 @@ torqueEnable()
 
 setProfile()
 
-for id in DXL_ID:
-    # Add parameter storage for Dynamixel#1 present position value
-    dxl_addparam_result = groupSyncRead.addParam(id)
-    if dxl_addparam_result != True:
-        print("[ID:%03d] groupSyncRead addparam failed" % id)
-        quit()
-
-    print()
+initReadPosition()
 
 while 1:
     print("Press any key to continue! (or press ESC to quit!)")
