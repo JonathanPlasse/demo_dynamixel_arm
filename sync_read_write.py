@@ -76,6 +76,7 @@ DXL_MOVING_STATUS_THRESHOLD = 5                # Dynamixel moving status thresho
 
 index = 0
 dxl_goal_position = [[1800, 2200], [2000, 2500], [2000, 1500], [2000, 2200]]         # Goal position
+dxl_goal_position = [[1800, 2000, 2000, 2000], [2200, 2500, 1500, 2200]]         # Goal position
 dxl_present_position = [0]*4
 
 
@@ -161,7 +162,7 @@ def setProfile():
 def writePosition():
     for id in DXL_ID:
         # Allocate goal position value into byte array
-        param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[id][index])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[id][index])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[id][index])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[id][index]))]
+        param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[index][id])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[index][id])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index][id])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index][id]))]
 
         # Add Dynamixel goal position value to the Syncwrite parameter storage
         dxl_addparam_result = groupSyncWrite.addParam(id, param_goal_position)
@@ -216,9 +217,9 @@ while 1:
             dxl_present_position[id] = groupSyncRead.getData(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
 
         for id in DXL_ID:
-            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[id][index], dxl_present_position[id]))
+            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index][id], dxl_present_position[id]))
 
-            arrived = arrived and (abs(dxl_goal_position[id][index] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
+            arrived = arrived and (abs(dxl_goal_position[index][id] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
         print()
 
         if arrived:
