@@ -203,6 +203,8 @@ def readPosition():
         # Get Dynamixel present position value
         dxl_present_position[id] = groupSyncRead.getData(id, ADDR_PRO_PRESENT_POSITION, LEN_PRO_PRESENT_POSITION)
 
+    return dxl_present_position
+
 torqueEnable()
 
 setProfile()
@@ -217,7 +219,7 @@ while 1:
     writePosition(dxl_goal_position[index])
 
     while 1:
-        readPosition()
+        dxl_present_position = readPosition()
 
         arrived = True
         for id in DXL_ID:
