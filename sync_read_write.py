@@ -269,16 +269,15 @@ def trackPosition(dxl_goal_position):
 
     index = 0
     while 1:
-        print("Press any key to continue! (or press ESC to quit!)")
-        if getch() == chr(0x1b):
-            break
-
         go2Position(dxl_goal_position[index])
 
         # Change goal position
         index += 1
 
         if index == len(dxl_goal_position):
+            print("Press any key to continue! (or press ESC to quit!)")
+            if getch() == chr(0x1b):
+                break
             index = 0
 
     go2Position(HOME_POSITION)
