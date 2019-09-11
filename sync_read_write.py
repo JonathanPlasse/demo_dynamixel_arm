@@ -68,17 +68,13 @@ BAUDRATE                    = 1000000             # Dynamixel default baudrate :
 DEVICENAME                  = '/dev/ttyUSB0'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 PROFILE_ACCELERATION        = 300
-PROFILE_VELOCITY            = 600
+PROFILE_VELOCITY            = 1000
 
 TORQUE_ENABLE               = 1                 # Value for enabling the torque
 TORQUE_DISABLE              = 0                 # Value for disabling the torque
 DXL_MOVING_STATUS_THRESHOLD = 5                # Dynamixel moving status threshold
 
-index = 0
-dxl_goal_position = [[1800, 2200], [2000, 2500], [2000, 1500], [2000, 2200]]         # Goal position
-dxl_goal_position = [[1800, 2000, 2000, 2000], [2200, 2500, 1500, 2200]]         # Goal position
 dxl_present_position = [0]*4
-
 
 # Initialize PortHandler instance
 # Set the port path
@@ -207,44 +203,55 @@ def readPosition():
 
 def display(dxl_goal_position, dxl_present_position):
     for id in DXL_ID:
-        print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[index][id], dxl_present_position[id]))
+        print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (id, dxl_goal_position[id], dxl_present_position[id]))
     print()
 
-torqueEnable()
+def trackPosition(dxl_goal_position):
+    torqueEnable()
 
-setProfile()
+    setProfile()
 
-initReadPosition()
+    initReadPosition()
 
-while 1:
-    print("Press any key to continue! (or press ESC to quit!)")
-    if getch() == chr(0x1b):
-        break
-
-    writePosition(dxl_goal_position[index])
-
+    index = 0
     while 1:
-        dxl_present_position = readPosition()
-
-        display(dxl_goal_position, dxl_present_position)
-
-        arrived = True
-        for id in DXL_ID:
-            arrived = arrived and (abs(dxl_goal_position[index][id] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
-
-        if arrived:
+        print("Press any key to continue! (or press ESC to quit!)")
+        if getch() == chr(0x1b):
             break
 
-    # Change goal position
-    if index == 0:
-        index = 1
-    else:
-        index = 0
+        writePosition(dxl_goal_position[index])
 
-# Clear syncread parameter storage
-groupSyncRead.clearParam()
+        while 1:
+            dxl_present_position = readPosition()
 
-torqueDisable()
+            display(dxl_goal_position[index], dxl_present_position)
+
+            arrived = True
+            for id in DXL_ID:
+                arrived = arrived and (abs(dxl_goal_position[index][id] - dxl_present_position[id]) < DXL_MOVING_STATUS_THRESHOLD)
+
+            if arrived:
+                break
+
+        # Change goal position
+        index += 1
+
+        if index == len(dxl_goal_position):
+            index = 0
+
+    # Clear syncread parameter storage
+    groupSyncRead.clearParam()
+
+    torqueDisable()
+
+
+
+dxl_goal_position = [[1700, 2000, 2000, 2000], [2300, 2500, 2200, 2200], [2000, 1400, 2700, 2400]]         # Goal position
+
+trackPosition(dxl_goal_position)
+
+
+
 
 # Close port
 portHandler.closePort()
