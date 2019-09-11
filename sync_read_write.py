@@ -70,6 +70,8 @@ DEVICENAME                  = '/dev/ttyUSB0'    # Check which port is being used
 PROFILE_ACCELERATION        = 300
 PROFILE_VELOCITY            = 1000
 
+POSITION_P_GAIN             = [1000, 5000, 3000, 1000]
+
 TORQUE_ENABLE               = 1                 # Value for enabling the torque
 TORQUE_DISABLE              = 0                 # Value for disabling the torque
 DXL_MOVING_STATUS_THRESHOLD = 5                # Dynamixel moving status threshold
